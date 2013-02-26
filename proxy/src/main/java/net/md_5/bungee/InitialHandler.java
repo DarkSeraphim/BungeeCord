@@ -128,16 +128,20 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
             throw new KickException( "Not authenticated with minecraft.net" );
         }
 
+         // fire login event
+        LoginEvent event = new LoginEvent( this );
         // Check for multiple connections
         ProxiedPlayer old = ProxyServer.getInstance().getPlayer( handshake.username );
         if ( old != null )
         {
-            old.disconnect( "You are already connected to the server" );
+            //old.disconnect( "You are already connected to the server" );
+            event.setCancelled(true);
         }
-
-        // fire login event
-        LoginEvent event = new LoginEvent( this );
-        ProxyServer.getInstance().getPluginManager().callEvent( event );
+        else
+        {
+            ProxyServer.getInstance().getPluginManager().callEvent( event );
+        }
+        
         if ( event.isCancelled() )
         {
             throw new KickException( event.getCancelReason() );
